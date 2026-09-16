@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AideRouteImport } from './routes/aide'
 import { Route as DevenirHoteRouteImport } from './routes/devenir-hote'
+import { Route as MesAnnoncesRouteImport } from './routes/mes-annonces'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as LogementIdRouteImport } from './routes/logement.$id'
 
@@ -30,6 +31,11 @@ const DevenirHoteRoute = DevenirHoteRouteImport.update({
   path: '/devenir-hote',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MesAnnoncesRoute = MesAnnoncesRouteImport.update({
+  id: '/mes-annonces',
+  path: '/mes-annonces',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RechercheRoute = RechercheRouteImport.update({
   id: '/recherche',
   path: '/recherche',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aide': typeof AideRoute
   '/devenir-hote': typeof DevenirHoteRoute
+  '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
   '/logement/$id': typeof LogementIdRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aide': typeof AideRoute
   '/devenir-hote': typeof DevenirHoteRoute
+  '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
   '/logement/$id': typeof LogementIdRoute
 }
@@ -60,19 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/aide': typeof AideRoute
   '/devenir-hote': typeof DevenirHoteRoute
+  '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
   '/logement/$id': typeof LogementIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/aide' | '/devenir-hote' | '/recherche' | '/logement/$id'
+  fullPaths:
+    | '/'
+    | '/aide'
+    | '/devenir-hote'
+    | '/mes-annonces'
+    | '/recherche'
+    | '/logement/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/aide' | '/devenir-hote' | '/recherche' | '/logement/$id'
+  to:
+    | '/'
+    | '/aide'
+    | '/devenir-hote'
+    | '/mes-annonces'
+    | '/recherche'
+    | '/logement/$id'
   id:
     | '__root__'
     | '/'
     | '/aide'
     | '/devenir-hote'
+    | '/mes-annonces'
     | '/recherche'
     | '/logement/$id'
   fileRoutesById: FileRoutesById
@@ -81,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AideRoute: typeof AideRoute
   DevenirHoteRoute: typeof DevenirHoteRoute
+  MesAnnoncesRoute: typeof MesAnnoncesRoute
   RechercheRoute: typeof RechercheRoute
   LogementIdRoute: typeof LogementIdRoute
 }
@@ -108,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevenirHoteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mes-annonces': {
+      id: '/mes-annonces'
+      path: '/mes-annonces'
+      fullPath: '/mes-annonces'
+      preLoaderRoute: typeof MesAnnoncesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recherche': {
       id: '/recherche'
       path: '/recherche'
@@ -129,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AideRoute: AideRoute,
   DevenirHoteRoute: DevenirHoteRoute,
+  MesAnnoncesRoute: MesAnnoncesRoute,
   RechercheRoute: RechercheRoute,
   LogementIdRoute: LogementIdRoute,
 }
