@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import type { DateRange } from "react-day-picker";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,7 +11,6 @@ import {
   statutDe,
   reserver,
   isoDate,
-  depuisIso,
   nombreNuits,
   formatJour,
 } from "@/lib/reservations";
@@ -59,7 +58,23 @@ function LogementPage() {
     return d;
   }, []);
 
-  if (!listing) throw notFound();
+  if (!listing) {
+    return (
+      <div className="min-h-screen">
+        <SiteHeader />
+        <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+          <h1 className="text-3xl font-semibold">Ce logement n'existe pas</h1>
+          <p className="mt-3 text-inksoft">Il a peut-être été supprimé par son hôte.</p>
+          <Link
+            to="/recherche"
+            className="mt-6 inline-block rounded-2xl bg-terra clay px-6 py-3 font-bold text-cream"
+          >
+            Voir les logements
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const statut = statutDe(store, listing.id);
   const debut = plage?.from ? isoDate(plage.from) : null;
@@ -226,5 +241,3 @@ function LogementPage() {
     </div>
   );
 }
-
-export { depuisIso };
