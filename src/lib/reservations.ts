@@ -72,7 +72,7 @@ export function isoDate(d: Date) {
 
 export function depuisIso(s: string) {
   const [a, m, j] = s.split("-").map(Number);
-  return new Date(a, (m ?? 1) - 1, j ?? 1);
+  return new Date(a ?? 1970, (m ?? 1) - 1, j ?? 1);
 }
 
 /** Nuits occupées : de l'arrivée (incluse) au départ (exclu). */
