@@ -1,18 +1,29 @@
-import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import type { DateRange } from "react-day-picker";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Calendar } from "@/components/ui/calendar";
 import { getListing, prixSejour, formatTND } from "@/lib/listings";
+import {
+  useStore,
+  trouverAnnonce,
+  datesIndisponibles,
+  statutDe,
+  reserver,
+  isoDate,
+  nombreNuits,
+  formatJour,
+} from "@/lib/reservations";
 
 export const Route = createFileRoute("/logement/$id")({
   loader: ({ params }) => {
-    const listing = getListing(params.id);
-    if (!listing) throw notFound();
-    return { listing };
+    const listing = getListing(params.id) ?? null;
+    return { listing, id: params.id };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) {
+    if (!loaderData?.listing) {
       return {
-        meta: [{ title: "Logement introuvable — Maison" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "Logement — Maison" }, { name: "robots", content: "noindex" }],
       };
     }
     const { listing } = loaderData;
@@ -33,10 +44,66 @@ export const Route = createFileRoute("/logement/$id")({
 });
 
 function LogementPage() {
-  const { listing } = Route.useLoaderData();
-  const [nuits, setNuits] = useState(6);
-  const [reserve, setReserve] = useState(false);
-  const prix = prixSejour(listing, nuits);
+  const { listing: base, id } = Route.useLoaderData();
+  const store = useStore();
+  const listing = trouverAnnonce(store, id) ?? base;
+
+  const [plage, setPlage] = useState<DateRange | undefined>();
+  const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
+
+  const indispo = useMemo(() => new Set(datesIndisponibles(store, id)), [store, id]);
+  const aujourdhui = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  if (!listing) {
+    return (
+      <div className="min-h-screen">
+        <SiteHeader />
+        <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+          <h1 className="text-3xl font-semibold">Ce logement n'existe pas</h1>
+          <p className="mt-3 text-inksoft">Il a peut-être été supprimé par son hôte.</p>
+          <Link
+            to="/recherche"
+            className="mt-6 inline-block rounded-2xl bg-terra clay px-6 py-3 font-bold text-cream"
+          >
+            Voir les logements
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const statut = statutDe(store, listing.id);
+  const debut = plage?.from ? isoDate(plage.from) : null;
+  const fin = plage?.to ? isoDate(plage.to) : null;
+  const nuits = debut && fin ? nombreNuits(debut, fin) : 0;
+  const prix = prixSejour(listing, Math.max(nuits, 0));
+
+  function reserverMaintenant() {
+    if (!debut || !fin || nuits < 1) {
+      setMessage({ ok: false, texte: "Choisissez une date d'arrivée et une date de départ." });
+      return;
+    }
+    const res = reserver({
+      listingId: listing!.id,
+      debut,
+      fin,
+      voyageurs: listing!.voyageurs,
+      total: prix.total,
+    });
+    if (res.ok) {
+      setPlage(undefined);
+      setMessage({
+        ok: true,
+        texte: `Réservation confirmée du ${formatJour(debut)} au ${formatJour(fin)}. Ces nuits sont désormais bloquées.`,
+      });
+    } else {
+      setMessage({ ok: false, texte: res.erreur });
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -47,7 +114,7 @@ function LogementPage() {
           ← Retour aux résultats
         </Link>
 
-        <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_360px]">
+        <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_380px]">
           <div>
             <img
               src={listing.image}
@@ -99,33 +166,37 @@ function LogementPage() {
               <span className="text-base font-semibold text-inksoft">TND / nuit</span>
             </p>
 
-            <label className="mt-5 block text-xs font-bold uppercase tracking-wide text-inksoft">
-              Nombre de nuits
-            </label>
-            <div className="mt-2 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setNuits((n) => Math.max(1, n - 1))}
-                className="size-10 rounded-2xl bg-cream text-lg font-bold"
-                aria-label="Retirer une nuit"
-              >
-                −
-              </button>
-              <span className="min-w-10 text-center text-lg font-bold">{nuits}</span>
-              <button
-                type="button"
-                onClick={() => setNuits((n) => Math.min(30, n + 1))}
-                className="size-10 rounded-2xl bg-cream text-lg font-bold"
-                aria-label="Ajouter une nuit"
-              >
-                +
-              </button>
-            </div>
+            <p className="mt-5 text-xs font-bold uppercase tracking-wide text-inksoft">
+              Vos dates de séjour
+            </p>
+            <Calendar
+              mode="range"
+              numberOfMonths={1}
+              selected={plage}
+              onSelect={(r) => {
+                setPlage(r);
+                setMessage(null);
+              }}
+              excludeDisabled
+              disabled={(date) => date < aujourdhui || indispo.has(isoDate(date))}
+              modifiers={{ prise: (date) => indispo.has(isoDate(date)) }}
+              modifiersClassNames={{ prise: "line-through opacity-40" }}
+              className="mt-2 rounded-2xl bg-cream p-3 pointer-events-auto"
+            />
+            <p className="mt-2 text-xs font-semibold text-inksoft">
+              Les nuits barrées sont déjà réservées ou bloquées par l'hôte.
+            </p>
 
-            <div className="mt-6 space-y-2.5 border-t border-border pt-5 text-sm">
+            {debut && fin && nuits > 0 && (
+              <p className="mt-3 text-sm font-bold">
+                {formatJour(debut)} → {formatJour(fin)} · {nuits} nuit{nuits > 1 ? "s" : ""}
+              </p>
+            )}
+
+            <div className="mt-5 space-y-2.5 border-t border-border pt-5 text-sm">
               <div className="flex justify-between">
                 <span className="text-inksoft">
-                  {listing.prixNuit} TND × {nuits} nuits
+                  {listing.prixNuit} TND × {nuits} nuit{nuits > 1 ? "s" : ""}
                 </span>
                 <span className="font-semibold">{formatTND(prix.sousTotal)}</span>
               </div>
@@ -146,17 +217,22 @@ function LogementPage() {
 
             <button
               type="button"
-              onClick={() => setReserve(true)}
-              className="mt-6 w-full rounded-2xl bg-terra clay px-6 py-3.5 text-base font-bold text-cream transition-transform hover:-translate-y-0.5"
+              onClick={reserverMaintenant}
+              disabled={statut !== "publiee"}
+              className="mt-6 w-full rounded-2xl bg-terra clay px-6 py-3.5 text-base font-bold text-cream transition-transform hover:-translate-y-0.5 disabled:opacity-50"
             >
-              Réserver
+              {statut === "publiee" ? "Réserver" : "Annonce indisponible"}
             </button>
             <p className="mt-3 text-center text-xs font-semibold text-inksoft">
               Confirmation instantanée · démonstration, aucun paiement réel
             </p>
-            {reserve && (
-              <p className="mt-4 rounded-2xl bg-sage px-4 py-3 text-sm font-semibold text-ink">
-                Réservation confirmée pour {nuits} nuits à {listing.titre}.
+            {message && (
+              <p
+                className={`mt-4 rounded-2xl px-4 py-3 text-sm font-semibold text-ink ${
+                  message.ok ? "bg-sage" : "bg-butter"
+                }`}
+              >
+                {message.texte}
               </p>
             )}
           </aside>
