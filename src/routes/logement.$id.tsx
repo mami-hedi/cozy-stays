@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { DateRange } from "react-day-picker";
 import { SiteHeader } from "@/components/SiteHeader";
+import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { getListing, prixSejour, formatTND } from "@/lib/listings";
 import {
@@ -171,6 +172,7 @@ function LogementPage() {
             </p>
             <Calendar
               mode="range"
+              locale={fr}
               numberOfMonths={1}
               selected={plage}
               onSelect={(r) => {
