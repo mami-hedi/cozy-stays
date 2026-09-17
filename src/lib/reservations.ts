@@ -14,16 +14,34 @@ export type Reservation = {
 
 export type ListingStatut = "brouillon" | "publiee" | "desactivee";
 
+export type Auteur = "hote" | "voyageur";
+
+export type Message = {
+  id: string;
+  listingId: string;
+  auteur: Auteur;
+  contenu: string;
+  date: string;
+  lu: boolean;
+};
+
 type Store = {
   reservations: Reservation[];
   annoncesPerso: Listing[];
   statuts: Record<string, ListingStatut>;
   bloquees: Record<string, string[]>; // dates bloquées manuellement par l'hôte
+  messages: Message[];
 };
 
 const CLE = "maison.store.v1";
 
-const vide: Store = { reservations: [], annoncesPerso: [], statuts: {}, bloquees: {} };
+const vide: Store = {
+  reservations: [],
+  annoncesPerso: [],
+  statuts: {},
+  bloquees: {},
+  messages: [],
+};
 
 let store: Store = vide;
 let charge = false;
@@ -150,6 +168,7 @@ export function supprimerAnnonce(id: string) {
     annoncesPerso: s.annoncesPerso.filter((l) => l.id !== id),
     statuts,
     bloquees,
+    messages: s.messages.filter((m) => m.listingId !== id),
   });
 }
 
@@ -220,5 +239,62 @@ export function formatJour(iso: string) {
     day: "numeric",
     month: "short",
     year: "numeric",
+  });
+}
+
+/* ---------- messagerie ---------- */
+
+export function messagesDe(s: Store, listingId: string): Message[] {
+  return s.messages
+    .filter((m) => m.listingId === listingId)
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function nonLusDe(s: Store, listingId: string, pour: Auteur) {
+  return s.messages.filter(
+    (m) => m.listingId === listingId && !m.lu && m.auteur !== pour,
+  ).length;
+}
+
+export function totalNonLus(s: Store, pour: Auteur) {
+  return s.messages.filter((m) => !m.lu && m.auteur !== pour).length;
+}
+
+export function envoyerMessage(listingId: string, auteur: Auteur, contenu: string): Message | null {
+  const texte = contenu.trim();
+  if (!texte) return null;
+  const s = lire();
+  const message: Message = {
+    id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    listingId,
+    auteur,
+    contenu: texte,
+    date: new Date().toISOString(),
+    lu: false,
+  };
+  ecrire({ ...s, messages: [...s.messages, message] });
+  return message;
+}
+
+/** Marque comme lus les messages reçus par `pour` dans cette conversation. */
+export function marquerLu(listingId: string, pour: Auteur) {
+  const s = lire();
+  let change = false;
+  const messages = s.messages.map((m) => {
+    if (m.listingId === listingId && m.auteur !== pour && !m.lu) {
+      change = true;
+      return { ...m, lu: true };
+    }
+    return m;
+  });
+  if (change) ecrire({ ...s, messages });
+}
+
+export function formatHeure(iso: string) {
+  return new Date(iso).toLocaleString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
