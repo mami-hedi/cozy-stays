@@ -168,6 +168,7 @@ export function supprimerAnnonce(id: string) {
     annoncesPerso: s.annoncesPerso.filter((l) => l.id !== id),
     statuts,
     bloquees,
+    messages: s.messages.filter((m) => m.listingId !== id),
   });
 }
 
