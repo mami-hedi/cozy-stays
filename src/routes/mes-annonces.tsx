@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
+import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { formatTND, type Listing } from "@/lib/listings";
 import villaOceane from "@/assets/villa-oceane.jpg";
@@ -203,6 +204,7 @@ function PanneauAnnonce({ listing }: { listing: Listing }) {
         </p>
         <Calendar
           mode="single"
+          locale={fr}
           numberOfMonths={1}
           selected={undefined}
           onDayClick={(jour) => {
