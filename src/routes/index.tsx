@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ListingCard } from "@/components/ListingCard";
-import { listings } from "@/lib/listings";
+import { useStore, annoncesVisibles } from "@/lib/reservations";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,6 +25,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const store = useStore();
+  const listings = annoncesVisibles(store);
+
   return (
     <div className="min-h-screen">
       <SiteHeader />

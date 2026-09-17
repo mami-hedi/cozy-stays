@@ -22,6 +22,9 @@ export function SiteHeader() {
           <Link to="/devenir-hote" className={navClass} activeProps={{ className: navActiveClass }}>
             Devenir hôte
           </Link>
+          <Link to="/mes-annonces" className={navClass} activeProps={{ className: navActiveClass }}>
+            Mes annonces
+          </Link>
           <Link to="/aide" className={navClass} activeProps={{ className: navActiveClass }}>
             Aide
           </Link>

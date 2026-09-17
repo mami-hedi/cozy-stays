@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ListingCard } from "@/components/ListingCard";
-import { listings } from "@/lib/listings";
+import { useStore, annoncesVisibles } from "@/lib/reservations";
 
 export const Route = createFileRoute("/recherche")({
   head: () => ({
@@ -30,6 +30,8 @@ const chambresOptions = [1, 2, 3, 4] as const;
 const equipements = ["Piscine", "Wifi", "Climatisation", "Vue mer", "Parking"] as const;
 
 function Recherche() {
+  const store = useStore();
+  const listings = annoncesVisibles(store);
   const [type, setType] = useState<(typeof types)[number]>("Tous");
   const [prixMax, setPrixMax] = useState(220);
   const [chambresMin, setChambresMin] = useState(1);
@@ -45,7 +47,7 @@ function Recherche() {
           l.equipements.some((eq) => eq.toLowerCase().includes(e.toLowerCase())),
         );
       }),
-    [type, prixMax, chambresMin, equipementsActifs],
+    [listings, type, prixMax, chambresMin, equipementsActifs],
   );
 
   function toggleEquipement(e: string) {

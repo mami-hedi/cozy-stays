@@ -107,7 +107,10 @@ export function chevauche(s: Store, listingId: string, debut: string, fin: strin
 /* ---------- annonces ---------- */
 
 export function toutesAnnonces(s: Store): Listing[] {
-  return [...baseListings, ...s.annoncesPerso];
+  const perso = new Map(s.annoncesPerso.map((l) => [l.id, l]));
+  const base = baseListings.map((l) => perso.get(l.id) ?? l);
+  const nouvelles = s.annoncesPerso.filter((l) => !baseListings.some((b) => b.id === l.id));
+  return [...base, ...nouvelles];
 }
 
 export function annoncesVisibles(s: Store): Listing[] {
