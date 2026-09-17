@@ -14,16 +14,34 @@ export type Reservation = {
 
 export type ListingStatut = "brouillon" | "publiee" | "desactivee";
 
+export type Auteur = "hote" | "voyageur";
+
+export type Message = {
+  id: string;
+  listingId: string;
+  auteur: Auteur;
+  contenu: string;
+  date: string;
+  lu: boolean;
+};
+
 type Store = {
   reservations: Reservation[];
   annoncesPerso: Listing[];
   statuts: Record<string, ListingStatut>;
   bloquees: Record<string, string[]>; // dates bloquées manuellement par l'hôte
+  messages: Message[];
 };
 
 const CLE = "maison.store.v1";
 
-const vide: Store = { reservations: [], annoncesPerso: [], statuts: {}, bloquees: {} };
+const vide: Store = {
+  reservations: [],
+  annoncesPerso: [],
+  statuts: {},
+  bloquees: {},
+  messages: [],
+};
 
 let store: Store = vide;
 let charge = false;
