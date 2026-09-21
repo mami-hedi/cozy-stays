@@ -25,6 +25,16 @@ export type Message = {
   lu: boolean;
 };
 
+export type Avis = {
+  id: string;
+  listingId: string;
+  reservationId: string;
+  note: number; // 1 à 5
+  commentaire: string;
+  date: string;
+  reponseHote?: string;
+};
+
 type Store = {
   reservations: Reservation[];
   annoncesPerso: Listing[];
@@ -42,6 +52,7 @@ const vide: Store = {
   statuts: {},
   bloquees: {},
   messages: [],
+  avis: [],
 };
 
 let store: Store = vide;
