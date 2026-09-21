@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { getListing, prixSejour, formatTND } from "@/lib/listings";
+import { Messagerie } from "@/components/Messagerie";
 import {
   useStore,
   trouverAnnonce,

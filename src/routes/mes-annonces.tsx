@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { formatTND, type Listing } from "@/lib/listings";
+import { Messagerie } from "@/components/Messagerie";
 import villaOceane from "@/assets/villa-oceane.jpg";
 import {
   useStore,
