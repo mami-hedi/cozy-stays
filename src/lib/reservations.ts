@@ -181,6 +181,7 @@ export function supprimerAnnonce(id: string) {
     statuts,
     bloquees,
     messages: s.messages.filter((m) => m.listingId !== id),
+    avis: s.avis.filter((a) => a.listingId !== id),
   });
 }
 
