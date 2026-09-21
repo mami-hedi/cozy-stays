@@ -6,6 +6,7 @@ import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { getListing, prixSejour, formatTND } from "@/lib/listings";
 import { Messagerie } from "@/components/Messagerie";
+import { AvisVoyageur } from "@/components/Avis";
 import {
   useStore,
   trouverAnnonce,
@@ -15,6 +16,8 @@ import {
   isoDate,
   nombreNuits,
   formatJour,
+  reputationDe,
+  formatNote,
 } from "@/lib/reservations";
 
 export const Route = createFileRoute("/logement/$id")({
@@ -79,6 +82,7 @@ function LogementPage() {
   }
 
   const statut = statutDe(store, listing.id);
+  const reputation = reputationDe(store, listing);
   const debut = plage?.from ? isoDate(plage.from) : null;
   const fin = plage?.to ? isoDate(plage.to) : null;
   const nuits = debut && fin ? nombreNuits(debut, fin) : 0;
@@ -135,7 +139,7 @@ function LogementPage() {
                 </p>
               </div>
               <span className="rounded-full bg-butter px-3 py-1.5 text-sm font-bold">
-                ★ {listing.note.toFixed(1).replace(".", ",")} · {listing.avis} avis
+                ★ {formatNote(reputation.note)} · {reputation.nombre} avis
               </span>
             </div>
 
@@ -159,6 +163,10 @@ function LogementPage() {
                   ))}
                 </ul>
               </div>
+            </div>
+
+            <div className="mt-6">
+              <AvisVoyageur listing={listing} />
             </div>
 
             <div className="mt-6">
