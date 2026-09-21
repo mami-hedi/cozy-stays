@@ -311,3 +311,77 @@ export function formatHeure(iso: string) {
     minute: "2-digit",
   });
 }
+
+/* ---------- avis ---------- */
+
+/** Réservations terminées (date de départ passée) : seules elles peuvent être notées. */
+export function sejoursTermines(s: Store, listingId: string) {
+  const aujourdhui = isoDate(new Date());
+  return reservationsDe(s, listingId).filter((r) => r.fin <= aujourdhui);
+}
+
+export function avisDe(s: Store, listingId: string): Avis[] {
+  return s.avis
+    .filter((a) => a.listingId === listingId)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function avisDeReservation(s: Store, reservationId: string): Avis | undefined {
+  return s.avis.find((a) => a.reservationId === reservationId);
+}
+
+/** Réputation : note de base de l'annonce combinée aux avis laissés dans la démo. */
+export function reputationDe(s: Store, listing: Listing) {
+  const locaux = avisDe(s, listing.id);
+  const totalAvis = listing.avis + locaux.length;
+  const somme = listing.note * listing.avis + locaux.reduce((t, a) => t + a.note, 0);
+  return {
+    note: totalAvis > 0 ? somme / totalAvis : 0,
+    nombre: totalAvis,
+    locaux,
+  };
+}
+
+export function laisserAvis(input: {
+  listingId: string;
+  reservationId: string;
+  note: number;
+  commentaire: string;
+}): { ok: true; avis: Avis } | { ok: false; erreur: string } {
+  const s = lire();
+  const reservation = s.reservations.find((r) => r.id === input.reservationId);
+  if (!reservation) return { ok: false, erreur: "Réservation introuvable." };
+  if (reservation.fin > isoDate(new Date()))
+    return { ok: false, erreur: "Vous pourrez noter ce logement après votre séjour." };
+  if (avisDeReservation(s, input.reservationId))
+    return { ok: false, erreur: "Vous avez déjà noté ce séjour." };
+  const note = Math.min(5, Math.max(1, Math.round(input.note)));
+
+  const avis: Avis = {
+    id: `avis-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    listingId: input.listingId,
+    reservationId: input.reservationId,
+    note,
+    commentaire: input.commentaire.trim(),
+    date: new Date().toISOString(),
+  };
+  ecrire({ ...s, avis: [...s.avis, avis] });
+  return { ok: true, avis };
+}
+
+export function repondreAvis(avisId: string, reponse: string) {
+  const s = lire();
+  ecrire({
+    ...s,
+    avis: s.avis.map((a) => (a.id === avisId ? { ...a, reponseHote: reponse.trim() } : a)),
+  });
+}
+
+export function supprimerAvis(id: string) {
+  const s = lire();
+  ecrire({ ...s, avis: s.avis.filter((a) => a.id !== id) });
+}
+
+export function formatNote(n: number) {
+  return n.toFixed(1).replace(".", ",");
+}
