@@ -185,7 +185,7 @@ export function ReputationHote({ listing }: { listing: Listing }) {
   );
 }
 
-function ReponseHote({ avisId, existante }: { avisId: string; existante?: string }) {
+function ReponseHote({ avisId, existante }: { avisId: string; existante?: string | undefined }) {
   const [texte, setTexte] = useState("");
   if (existante) return null;
   return (
