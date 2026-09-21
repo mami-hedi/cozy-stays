@@ -6,6 +6,7 @@ import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { getListing, prixSejour, formatTND } from "@/lib/listings";
 import { Messagerie } from "@/components/Messagerie";
+import { AvisVoyageur } from "@/components/Avis";
 import {
   useStore,
   trouverAnnonce,
@@ -159,6 +160,10 @@ function LogementPage() {
                   ))}
                 </ul>
               </div>
+            </div>
+
+            <div className="mt-6">
+              <AvisVoyageur listing={listing} />
             </div>
 
             <div className="mt-6">
