@@ -160,7 +160,16 @@ function LogementPage() {
                 </ul>
               </div>
             </div>
+
+            <div className="mt-6">
+              <Messagerie
+                listingId={listing.id}
+                role="voyageur"
+                titre={`Contacter l'hôte · ${listing.hote}`}
+              />
+            </div>
           </div>
+
 
           <aside className="h-fit lg:sticky lg:top-8 rounded-[1.75rem] bg-surface clay p-6">
             <p className="text-2xl font-bold">

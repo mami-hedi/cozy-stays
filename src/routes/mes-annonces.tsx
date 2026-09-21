@@ -263,6 +263,12 @@ function PanneauAnnonce({ listing }: { listing: Listing }) {
           </ul>
         )}
       </div>
+
+      <Messagerie
+        listingId={listing.id}
+        role="hote"
+        titre={`Messagerie voyageurs · ${listing.titre}`}
+      />
     </div>
   );
 }
