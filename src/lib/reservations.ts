@@ -31,6 +31,7 @@ type Store = {
   statuts: Record<string, ListingStatut>;
   bloquees: Record<string, string[]>; // dates bloquées manuellement par l'hôte
   messages: Message[];
+  avis: Avis[];
 };
 
 const CLE = "maison.store.v1";
