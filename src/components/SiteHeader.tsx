@@ -46,7 +46,7 @@ export function SiteHeader() {
           >
             Se connecter
           </button>
-          <div className="hidden size-11 rounded-2xl bg-powder clay-sm grid place-items-center font-bold text-ink min-[420px]:grid sm:grid">
+          <div className="size-11 rounded-2xl bg-powder clay-sm grid place-items-center font-bold text-ink">
             S
           </div>
           <button
