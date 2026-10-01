@@ -42,6 +42,24 @@ type Store = {
   bloquees: Record<string, string[]>; // dates bloquées manuellement par l'hôte
   messages: Message[];
   avis: Avis[];
+  moderation: Record<string, Moderation>;
+  litiges: Litige[];
+};
+
+export type Moderation = "approuvee" | "signalee" | "suspendue";
+export type LitigeStatut = "ouvert" | "en_cours" | "resolu" | "rejete";
+export type Litige = {
+  id: string;
+  reservationId: string;
+  listingId: string;
+  demandeur: Auteur;
+  motif: string;
+  description: string;
+  statut: LitigeStatut;
+  remboursement: number;
+  noteAdmin: string;
+  cree: string;
+  maj: string;
 };
 
 const CLE = "maison.store.v1";
@@ -53,6 +71,8 @@ const vide: Store = {
   bloquees: {},
   messages: [],
   avis: [],
+  moderation: {},
+  litiges: [],
 };
 
 let store: Store = vide;
@@ -144,7 +164,9 @@ export function toutesAnnonces(s: Store): Listing[] {
 }
 
 export function annoncesVisibles(s: Store): Listing[] {
-  return toutesAnnonces(s).filter((l) => statutDe(s, l.id) === "publiee");
+  return toutesAnnonces(s).filter(
+    (l) => statutDe(s, l.id) === "publiee" && s.moderation[l.id] !== "suspendue",
+  );
 }
 
 export function statutDe(s: Store, id: string): ListingStatut {
@@ -384,4 +406,74 @@ export function supprimerAvis(id: string) {
 
 export function formatNote(n: number) {
   return n.toFixed(1).replace(".", ",");
+}
+
+/* ---------- back-office admin ---------- */
+
+export const COMMISSION_HOTE = 0.03;
+
+export function moderationDe(s: Store, id: string): Moderation {
+  return s.moderation[id] ?? "approuvee";
+}
+
+export function definirModeration(id: string, m: Moderation) {
+  const s = lire();
+  ecrire({ ...s, moderation: { ...s.moderation, [id]: m } });
+}
+
+/** Total payé = base × 1,10 ; la plateforme garde 10 % voyageur + 3 % hôte sur la base. */
+export function commissionDe(r: Reservation) {
+  const base = r.total / 1.1;
+  const voyageur = Math.round(r.total - base);
+  const hote = Math.round(base * COMMISSION_HOTE);
+  return { voyageur, hote, plateforme: voyageur + hote, versementHote: Math.round(base) - hote };
+}
+
+export function ouvrirLitige(input: {
+  reservationId: string;
+  demandeur: Auteur;
+  motif: string;
+  description: string;
+}): Litige | null {
+  const s = lire();
+  const r = s.reservations.find((x) => x.id === input.reservationId);
+  const motif = input.motif.trim().slice(0, 100);
+  if (!r || !motif) return null;
+  const now = new Date().toISOString();
+  const litige: Litige = {
+    id: `lit-${Date.now().toString(36)}`,
+    reservationId: r.id,
+    listingId: r.listingId,
+    demandeur: input.demandeur,
+    motif,
+    description: input.description.trim().slice(0, 1000),
+    statut: "ouvert",
+    remboursement: 0,
+    noteAdmin: "",
+    cree: now,
+    maj: now,
+  };
+  ecrire({ ...s, litiges: [litige, ...s.litiges] });
+  return litige;
+}
+
+export function majLitige(
+  id: string,
+  patch: Partial<Pick<Litige, "statut" | "remboursement" | "noteAdmin">>,
+) {
+  const s = lire();
+  ecrire({
+    ...s,
+    litiges: s.litiges.map((l) =>
+      l.id === id
+        ? {
+            ...l,
+            ...patch,
+            remboursement: Math.max(0, Math.round(patch.remboursement ?? l.remboursement)),
+            noteAdmin: (patch.noteAdmin ?? l.noteAdmin).slice(0, 1000),
+            maj: new Date().toISOString(),
+          }
+        : l,
+    ),
+  });
 }
