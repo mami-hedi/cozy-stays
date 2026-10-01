@@ -3,6 +3,7 @@ import { useState } from "react";
 
 const links = [
   { to: "/recherche", label: "Explorer" },
+  { to: "/conseiller", label: "Conseiller IA" },
   { to: "/devenir-hote", label: "Devenir hôte" },
   { to: "/mes-annonces", label: "Mes annonces" },
   { to: "/aide", label: "Aide" },

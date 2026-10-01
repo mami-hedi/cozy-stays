@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AideRouteImport } from './routes/aide'
+import { Route as ConseillerRouteImport } from './routes/conseiller'
 import { Route as DevenirHoteRouteImport } from './routes/devenir-hote'
 import { Route as MesAnnoncesRouteImport } from './routes/mes-annonces'
 import { Route as RechercheRouteImport } from './routes/recherche'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const AideRoute = AideRouteImport.update({
   id: '/aide',
   path: '/aide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConseillerRoute = ConseillerRouteImport.update({
+  id: '/conseiller',
+  path: '/conseiller',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevenirHoteRoute = DevenirHoteRouteImport.update({
@@ -50,6 +56,7 @@ const LogementIdRoute = LogementIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aide': typeof AideRoute
+  '/conseiller': typeof ConseillerRoute
   '/devenir-hote': typeof DevenirHoteRoute
   '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aide': typeof AideRoute
+  '/conseiller': typeof ConseillerRoute
   '/devenir-hote': typeof DevenirHoteRoute
   '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/aide': typeof AideRoute
+  '/conseiller': typeof ConseillerRoute
   '/devenir-hote': typeof DevenirHoteRoute
   '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/aide'
+    | '/conseiller'
     | '/devenir-hote'
     | '/mes-annonces'
     | '/recherche'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/aide'
+    | '/conseiller'
     | '/devenir-hote'
     | '/mes-annonces'
     | '/recherche'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/aide'
+    | '/conseiller'
     | '/devenir-hote'
     | '/mes-annonces'
     | '/recherche'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AideRoute: typeof AideRoute
+  ConseillerRoute: typeof ConseillerRoute
   DevenirHoteRoute: typeof DevenirHoteRoute
   MesAnnoncesRoute: typeof MesAnnoncesRoute
   RechercheRoute: typeof RechercheRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/aide'
       fullPath: '/aide'
       preLoaderRoute: typeof AideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conseiller': {
+      id: '/conseiller'
+      path: '/conseiller'
+      fullPath: '/conseiller'
+      preLoaderRoute: typeof ConseillerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/devenir-hote': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AideRoute: AideRoute,
+  ConseillerRoute: ConseillerRoute,
   DevenirHoteRoute: DevenirHoteRoute,
   MesAnnoncesRoute: MesAnnoncesRoute,
   RechercheRoute: RechercheRoute,
