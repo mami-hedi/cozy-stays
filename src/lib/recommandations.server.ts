@@ -39,7 +39,7 @@ export class GatewayError extends Error {
 }
 
 export async function recommander(preferences: string, candidats: Candidat[]): Promise<Reco[]> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new GatewayError("Service IA non configuré.", 401);
   const provider = createOpenAI({
     baseURL: "https://ai.gateway.lovable.dev/v1",
