@@ -3,7 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ListingCard } from "@/components/ListingCard";
-import { useStore, annoncesVisibles } from "@/lib/reservations";
+import {
+  useStore,
+  annoncesVisibles,
+  profilVoyageur,
+  enregistrerRecherche,
+  effacerHistorique,
+} from "@/lib/reservations";
 import { obtenirRecommandations } from "@/lib/recommandations.functions";
 
 export const Route = createFileRoute("/conseiller")({
@@ -40,19 +46,45 @@ function Conseiller() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [resultats, setResultats] = useState<Reco[] | null>(null);
 
+  const historique = profilVoyageur(store);
+  const [titre, setTitre] = useState("Nos recommandations");
+
   async function lancer(e: React.FormEvent) {
     e.preventDefault();
+    const criteres = [
+      `${voyageurs} voyageurs`,
+      `budget ${budget} TND/nuit`,
+      choix.join(", "),
+      details.trim(),
+    ]
+      .filter(Boolean)
+      .join(", ");
+    enregistrerRecherche(`Conseiller : ${criteres}`);
+    setTitre("Nos recommandations");
+    await appeler(
+      [
+        `Voyageurs : ${voyageurs}`,
+        `Budget max par nuit : ${budget} TND`,
+        choix.length ? `Envies : ${choix.join(", ")}` : "",
+        details.trim() ? `Détails : ${details.trim()}` : "",
+        historique ? `\nHistorique du voyageur (à utiliser comme contexte secondaire) :\n${historique}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    );
+  }
+
+  async function pourVous() {
+    setTitre("Sélection personnalisée pour vous");
+    await appeler(
+      `Aucun critère explicite : déduis les goûts du voyageur de son historique et propose des logements qu'il n'a pas encore réservés de préférence.\n${historique}`,
+    );
+  }
+
+  async function appeler(preferences: string) {
     setChargement(true);
     setErreur(null);
     setResultats(null);
-    const preferences = [
-      `Voyageurs : ${voyageurs}`,
-      `Budget max par nuit : ${budget} TND`,
-      choix.length ? `Envies : ${choix.join(", ")}` : "",
-      details.trim() ? `Détails : ${details.trim()}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
     try {
       const res = await recommander({
         data: {
@@ -94,6 +126,47 @@ function Conseiller() {
         <p className="mt-3 max-w-xl text-lg text-inksoft">
           Indiquez vos préférences, notre assistant sélectionne les logements qui vous correspondent.
         </p>
+
+        <div className="mt-8 rounded-[2rem] bg-sage clay p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">Pour vous</h2>
+              <p className="mt-1 text-ink/80">
+                {historique
+                  ? `Basé sur ${store.recherches.length} recherche(s) et ${store.reservations.length} réservation(s).`
+                  : "Faites une recherche ou une réservation pour obtenir des suggestions personnalisées."}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={pourVous}
+                disabled={!historique || chargement}
+                className="rounded-2xl bg-terra clay px-6 py-3 font-bold text-cream disabled:opacity-50"
+              >
+                Voir mes suggestions
+              </button>
+              {store.recherches.length > 0 && (
+                <button
+                  type="button"
+                  onClick={effacerHistorique}
+                  className="rounded-2xl bg-cream px-4 py-3 text-sm font-semibold text-inksoft"
+                >
+                  Effacer mes recherches
+                </button>
+              )}
+            </div>
+          </div>
+          {store.recherches.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2 text-xs">
+              {store.recherches.slice(0, 5).map((r) => (
+                <li key={r.id} className="rounded-full bg-cream px-3 py-1 text-inksoft">
+                  {r.resume}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <form onSubmit={lancer} className="mt-8 grid gap-6 rounded-[2rem] bg-surface clay p-6 md:grid-cols-2">
           <div>
@@ -181,7 +254,7 @@ function Conseiller() {
           )}
           {resultats && resultats.length > 0 && (
             <>
-              <h2 className="text-3xl font-semibold">Nos recommandations</h2>
+              <h2 className="text-3xl font-semibold">{titre}</h2>
               <div className="mt-6 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
                 {resultats.map((r) => {
                   const l = listings.find((x) => x.id === r.id);
