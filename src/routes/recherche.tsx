@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ListingCard } from "@/components/ListingCard";
-import { useStore, annoncesVisibles } from "@/lib/reservations";
+import { useStore, annoncesVisibles, enregistrerRecherche } from "@/lib/reservations";
 
 export const Route = createFileRoute("/recherche")({
   head: () => ({
@@ -49,6 +49,24 @@ function Recherche() {
       }),
     [listings, type, prixMax, chambresMin, equipementsActifs],
   );
+
+  const filtresModifies = type !== "Tous" || prixMax !== 220 || chambresMin !== 1 || equipementsActifs.length > 0;
+  useEffect(() => {
+    if (!filtresModifies) return;
+    const t = setTimeout(() => {
+      enregistrerRecherche(
+        [
+          type !== "Tous" ? `type ${type}` : "",
+          `prix max ${prixMax} TND`,
+          `${chambresMin}+ chambres`,
+          equipementsActifs.length ? `équipements : ${equipementsActifs.join(", ")}` : "",
+        ]
+          .filter(Boolean)
+          .join(", "),
+      );
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [filtresModifies, type, prixMax, chambresMin, equipementsActifs]);
 
   function toggleEquipement(e: string) {
     setEquipementsActifs((prev) =>
