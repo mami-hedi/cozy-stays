@@ -7,6 +7,7 @@ const links = [
   { to: "/devenir-hote", label: "Devenir hôte" },
   { to: "/mes-annonces", label: "Mes annonces" },
   { to: "/aide", label: "Aide" },
+  { to: "/admin", label: "Admin" },
 ] as const;
 
 const navClass =

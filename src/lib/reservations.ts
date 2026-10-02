@@ -197,6 +197,7 @@ export function supprimerAnnonce(id: string) {
   const s = lire();
   const { [id]: _statut, ...statuts } = s.statuts;
   const { [id]: _bloc, ...bloquees } = s.bloquees;
+  const { [id]: _mod, ...moderation } = s.moderation;
   ecrire({
     reservations: s.reservations.filter((r) => r.listingId !== id),
     annoncesPerso: s.annoncesPerso.filter((l) => l.id !== id),
@@ -204,6 +205,8 @@ export function supprimerAnnonce(id: string) {
     bloquees,
     messages: s.messages.filter((m) => m.listingId !== id),
     avis: s.avis.filter((a) => a.listingId !== id),
+    moderation,
+    litiges: s.litiges.filter((l) => l.listingId !== id),
   });
 }
 
