@@ -44,7 +44,10 @@ type Store = {
   avis: Avis[];
   moderation: Record<string, Moderation>;
   litiges: Litige[];
+  recherches: Recherche[];
 };
+
+export type Recherche = { id: string; resume: string; date: string };
 
 export type Moderation = "approuvee" | "signalee" | "suspendue";
 export type LitigeStatut = "ouvert" | "en_cours" | "resolu" | "rejete";
@@ -73,6 +76,7 @@ const vide: Store = {
   avis: [],
   moderation: {},
   litiges: [],
+  recherches: [],
 };
 
 let store: Store = vide;
@@ -207,6 +211,7 @@ export function supprimerAnnonce(id: string) {
     avis: s.avis.filter((a) => a.listingId !== id),
     moderation,
     litiges: s.litiges.filter((l) => l.listingId !== id),
+    recherches: s.recherches,
   });
 }
 
@@ -479,4 +484,30 @@ export function majLitige(
         : l,
     ),
   });
+}
+
+/* ---------- historique voyageur ---------- */
+
+export function enregistrerRecherche(resume: string) {
+  const s = lire();
+  const r = resume.trim().slice(0, 400);
+  if (!r || s.recherches[0]?.resume === r) return;
+  const item = { id: `rch-${Date.now().toString(36)}`, resume: r, date: new Date().toISOString() };
+  ecrire({ ...s, recherches: [item, ...s.recherches].slice(0, 20) });
+}
+
+export function effacerHistorique() {
+  const s = lire();
+  ecrire({ ...s, recherches: [] });
+}
+
+/** Résumé texte de l'historique pour le conseiller IA. */
+export function profilVoyageur(s: Store): string {
+  const lignes: string[] = [];
+  s.recherches.slice(0, 10).forEach((r) => lignes.push(`Recherche : ${r.resume}`));
+  s.reservations.slice(-10).forEach((r) => {
+    const l = trouverAnnonce(s, r.listingId);
+    if (l) lignes.push(`Réservation : ${l.titre} (${l.type}, ${l.ville}, ${l.prixNuit} TND/nuit, ${r.voyageurs} voyageurs, ${r.nuits} nuits)`);
+  });
+  return lignes.join("\n");
 }
