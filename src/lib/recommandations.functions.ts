@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 const schema = z.object({
-  preferences: z.string().trim().min(3).max(1500),
+  preferences: z.string().trim().min(3).max(5000),
   candidats: z
     .array(
       z.object({
