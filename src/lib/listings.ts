@@ -25,7 +25,7 @@ export type Listing = {
   regles: string[];
 };
 
-export const COMMISSION_VOYAGEUR = 0.1;
+export const COMMISSION_VOYAGEUR = 0.02;
 
 export const listings: Listing[] = [
   {
