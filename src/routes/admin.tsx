@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
-import { formatTND } from "@/lib/listings";
+import { formatTND, COMMISSION_VOYAGEUR } from "@/lib/listings";
 import {
   useStore,
   toutesAnnonces,
@@ -419,7 +419,7 @@ function Commissions() {
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi label="Encaissé" valeur={formatTND(Math.round(tot.total))} />
-        <Kpi label="Commission voyageurs (10 %)" valeur={formatTND(tot.voyageur)} />
+        <Kpi label={`Commission voyageurs (${Math.round(COMMISSION_VOYAGEUR * 100)} %)`} valeur={formatTND(tot.voyageur)} />
         <Kpi label={`Commission hôtes (${Math.round(COMMISSION_HOTE * 100)} %)`} valeur={formatTND(tot.hote)} />
         <Kpi label="Reversé aux hôtes" valeur={formatTND(tot.versement)} />
       </div>
