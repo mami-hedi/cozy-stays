@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { COMMISSION_HOTE } from "@/lib/reservations";
+import { COMMISSION_VOYAGEUR } from "@/lib/listings";
 
 export const Route = createFileRoute("/aide")({
   head: () => ({
@@ -30,7 +31,7 @@ const questions = [
   },
   {
     q: "Quels frais s'ajoutent au prix par nuit ?",
-    a: "Les frais de ménage fixés par l'hôte, puis 10 % de frais de service côté voyageur. Le total est affiché avant la réservation, sans surprise.",
+    a: `Les frais de ménage fixés par l'hôte, puis ${Math.round(COMMISSION_VOYAGEUR * 100)} % de frais de service côté voyageur. Le total est affiché avant la réservation, sans surprise.`,
   },
   {
     q: "Quand l'hôte est-il payé ?",

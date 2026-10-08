@@ -4,7 +4,7 @@ import type { DateRange } from "react-day-picker";
 import { SiteHeader } from "@/components/SiteHeader";
 import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
-import { getListing, prixSejour, formatTND } from "@/lib/listings";
+import { getListing, prixSejour, formatTND, COMMISSION_VOYAGEUR } from "@/lib/listings";
 import { Messagerie } from "@/components/Messagerie";
 import { AvisVoyageur } from "@/components/Avis";
 import {
@@ -225,7 +225,7 @@ function LogementPage() {
                 <span className="font-semibold">{formatTND(prix.fraisMenage)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-inksoft">Frais de service (10 %)</span>
+                <span className="text-inksoft">Frais de service ({Math.round(COMMISSION_VOYAGEUR * 100)} %)</span>
                 <span className="font-semibold">{formatTND(prix.service)}</span>
               </div>
             </div>

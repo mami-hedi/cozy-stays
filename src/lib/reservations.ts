@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { listings as baseListings, type Listing } from "@/lib/listings";
+import { listings as baseListings, type Listing, COMMISSION_VOYAGEUR } from "@/lib/listings";
 
 export type Reservation = {
   id: string;
@@ -429,9 +429,9 @@ export function definirModeration(id: string, m: Moderation) {
   ecrire({ ...s, moderation: { ...s.moderation, [id]: m } });
 }
 
-/** Total payé = base × 1,10 ; la plateforme garde 10 % voyageur + 8 % hôte sur la base. */
+/** Total payé = base × (1 + taux voyageur) ; la plateforme garde la commission voyageur + la commission hôte sur la base. */
 export function commissionDe(r: Reservation) {
-  const base = r.total / 1.1;
+  const base = r.total / (1 + COMMISSION_VOYAGEUR);
   const voyageur = Math.round(r.total - base);
   const hote = Math.round(base * COMMISSION_HOTE);
   return { voyageur, hote, plateforme: voyageur + hote, versementHote: Math.round(base) - hote };
