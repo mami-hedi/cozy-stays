@@ -418,7 +418,7 @@ export function formatNote(n: number) {
 
 /* ---------- back-office admin ---------- */
 
-export const COMMISSION_HOTE = 0.03;
+export const COMMISSION_HOTE = 0.08;
 
 export function moderationDe(s: Store, id: string): Moderation {
   return s.moderation[id] ?? "approuvee";
@@ -429,7 +429,7 @@ export function definirModeration(id: string, m: Moderation) {
   ecrire({ ...s, moderation: { ...s.moderation, [id]: m } });
 }
 
-/** Total payé = base × 1,10 ; la plateforme garde 10 % voyageur + 3 % hôte sur la base. */
+/** Total payé = base × 1,10 ; la plateforme garde 10 % voyageur + 8 % hôte sur la base. */
 export function commissionDe(r: Reservation) {
   const base = r.total / 1.1;
   const voyageur = Math.round(r.total - base);

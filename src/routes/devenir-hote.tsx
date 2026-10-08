@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
+import { COMMISSION_HOTE } from "@/lib/reservations";
 
 export const Route = createFileRoute("/devenir-hote")({
   head: () => ({
@@ -50,8 +51,9 @@ function DevenirHote() {
           Votre bien mérite <span className="text-terra">de belles rencontres</span>
         </h1>
         <p className="mt-5 max-w-lg text-lg text-inksoft">
-          Publiez gratuitement. Nous prélevons une commission de 3 % côté hôte, uniquement quand une
-          réservation est confirmée.
+          Publiez gratuitement. Nous prélevons une commission de{" "}
+          {Math.round(COMMISSION_HOTE * 100)} % côté hôte, uniquement quand une réservation est
+          confirmée.
         </p>
 
         <div className="mt-10 grid gap-7 sm:grid-cols-3">

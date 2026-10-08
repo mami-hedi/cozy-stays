@@ -9,6 +9,7 @@ import {
   moderationDe,
   definirModeration,
   commissionDe,
+  COMMISSION_HOTE,
   ouvrirLitige,
   majLitige,
   formatJour,
@@ -419,7 +420,7 @@ function Commissions() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi label="Encaissé" valeur={formatTND(Math.round(tot.total))} />
         <Kpi label="Commission voyageurs (10 %)" valeur={formatTND(tot.voyageur)} />
-        <Kpi label="Commission hôtes (3 %)" valeur={formatTND(tot.hote)} />
+        <Kpi label={`Commission hôtes (${Math.round(COMMISSION_HOTE * 100)} %)`} valeur={formatTND(tot.hote)} />
         <Kpi label="Reversé aux hôtes" valeur={formatTND(tot.versement)} />
       </div>
       {rembourse > 0 && <p className="text-sm text-inksoft">Remboursements accordés via litiges : {formatTND(rembourse)}</p>}

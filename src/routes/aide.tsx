@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
+import { COMMISSION_HOTE } from "@/lib/reservations";
 
 export const Route = createFileRoute("/aide")({
   head: () => ({
@@ -33,7 +34,7 @@ const questions = [
   },
   {
     q: "Quand l'hôte est-il payé ?",
-    a: "Le versement est déclenché le lendemain de l'arrivée du voyageur, déduction faite de la commission de 3 % côté hôte.",
+    a: `Le versement est déclenché le lendemain de l'arrivée du voyageur, déduction faite de la commission de ${Math.round(COMMISSION_HOTE * 100)} % côté hôte.`,
   },
   {
     q: "Puis-je annuler ?",
