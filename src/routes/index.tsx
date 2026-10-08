@@ -1,18 +1,19 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { SITE_NAME, SITE_BASELINE, SITE_DESCRIPTION } from "@/lib/site";
+import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ListingCard } from "@/components/ListingCard";
-import { useStore, annoncesVisibles } from "@/lib/reservations";
+import { useStore, annoncesVisibles, isoDate } from "@/lib/reservations";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Maison — Location de villas et appartements en Tunisie" },
+      { title: `${SITE_NAME} — ${SITE_BASELINE}` },
       {
         name: "description",
-        content:
-          "Réservez des villas et appartements vérifiés en Tunisie : confirmation instantanée, prix tout compris, hôtes de confiance.",
+        content: SITE_DESCRIPTION,
       },
-      { property: "og:title", content: "Maison — Location de villas et appartements" },
+      { property: "og:title", content: `${SITE_NAME} — ${SITE_BASELINE}` },
       {
         property: "og:description",
         content: "Villas, appartements et refuges d'exception, réservés simplement.",
@@ -24,9 +25,36 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+function dansJours(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return isoDate(d);
+}
+
+const champ = "mt-1.5 w-full rounded-2xl bg-cream px-4 py-3 text-base font-semibold";
+const etiquette = "text-xs font-bold uppercase tracking-wide text-inksoft";
+
 function Index() {
   const store = useStore();
   const listings = annoncesVisibles(store);
+  const navigate = useNavigate();
+  const villes = Array.from(new Set(listings.map((l) => l.ville))).sort();
+  const [ville, setVille] = useState("");
+  const [arrivee, setArrivee] = useState(dansJours(7));
+  const [depart, setDepart] = useState(dansJours(14));
+  const [voyageurs, setVoyageurs] = useState(2);
+
+  function rechercher(e: React.FormEvent) {
+    e.preventDefault();
+    navigate({
+      to: "/recherche",
+      search: {
+        ...(ville ? { ville } : {}),
+        ...(arrivee && depart && arrivee < depart ? { arrivee, depart } : {}),
+        voyageurs,
+      },
+    });
+  }
 
   return (
     <div className="min-h-screen">
@@ -41,48 +69,83 @@ function Index() {
             Des lieux à partager, <span className="text-terra">des souvenirs à créer</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg text-inksoft">
-            Villas, appartements et refuges d'exception, réservés simplement entre voyageurs de
-            confiance.
+            Villas, appartements et refuges d'exception, réservés simplement entre voyageurs et
+            hôtes.
           </p>
         </div>
 
-        <div className="mt-9 flex flex-col lg:flex-row gap-4 lg:items-end rounded-[2rem] bg-surface clay p-4">
+        <form
+          onSubmit={rechercher}
+          className="mt-9 flex flex-col lg:flex-row gap-4 lg:items-end rounded-[2rem] bg-surface clay p-4"
+        >
           <div className="flex-1">
-            <label className="text-xs font-bold uppercase tracking-wide text-inksoft">
+            <label htmlFor="destination" className={etiquette}>
               Destination
             </label>
-            <div className="mt-1.5 rounded-2xl bg-cream px-4 py-3 text-base font-semibold">
-              Tunis, Tunisie
-            </div>
+            <select
+              id="destination"
+              value={ville}
+              onChange={(e) => setVille(e.target.value)}
+              className={champ}
+            >
+              <option value="">Toute la Tunisie</option>
+              {villes.map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex-1">
-            <label className="text-xs font-bold uppercase tracking-wide text-inksoft">Dates</label>
-            <div className="mt-1.5 rounded-2xl bg-cream px-4 py-3 text-base font-semibold">
-              12 – 18 juin
-            </div>
+            <label htmlFor="arrivee" className={etiquette}>
+              Arrivée
+            </label>
+            <input
+              id="arrivee"
+              type="date"
+              min={dansJours(0)}
+              value={arrivee}
+              onChange={(e) => setArrivee(e.target.value)}
+              className={champ}
+            />
           </div>
           <div className="flex-1">
-            <label className="text-xs font-bold uppercase tracking-wide text-inksoft">
+            <label htmlFor="depart" className={etiquette}>
+              Départ
+            </label>
+            <input
+              id="depart"
+              type="date"
+              min={arrivee || dansJours(0)}
+              value={depart}
+              onChange={(e) => setDepart(e.target.value)}
+              className={champ}
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="voyageurs" className={etiquette}>
               Voyageurs
             </label>
-            <div className="mt-1.5 rounded-2xl bg-cream px-4 py-3 text-base font-semibold">
-              4 personnes
-            </div>
+            <select
+              id="voyageurs"
+              value={voyageurs}
+              onChange={(e) => setVoyageurs(Number(e.target.value))}
+              className={champ}
+            >
+              {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n} personne{n > 1 ? "s" : ""}
+                </option>
+              ))}
+            </select>
           </div>
-          <div className="lg:w-auto">
-            <div className="flex items-center gap-1">
-              <span className="size-11 rounded-2xl bg-lilac clay-sm grid place-items-center">
-                <span className="text-lg text-ink">⌕</span>
-              </span>
-              <Link
-                to="/recherche"
-                className="rounded-2xl bg-terra clay px-7 py-3.5 text-base font-bold text-cream"
-              >
-                Rechercher
-              </Link>
-            </div>
-          </div>
-        </div>
+          <button
+            type="submit"
+            className="rounded-2xl bg-terra clay px-7 py-3.5 text-base font-bold text-cream"
+          >
+            Rechercher
+          </button>
+        </form>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-12">
@@ -108,7 +171,7 @@ function Index() {
             </h2>
             <p className="mt-3 max-w-md text-ink/80">
               Publiez votre annonce en quelques minutes, gérez votre calendrier et recevez des
-              voyageurs vérifiés. Commission uniquement à la réservation.
+              voyageurs. Commission uniquement à la réservation.
             </p>
           </div>
           <Link

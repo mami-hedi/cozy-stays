@@ -1,3 +1,4 @@
+import { SITE_NAME, SITE_BASELINE } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { COMMISSION_HOTE } from "@/lib/reservations";
@@ -6,13 +7,13 @@ import { COMMISSION_VOYAGEUR } from "@/lib/listings";
 export const Route = createFileRoute("/aide")({
   head: () => ({
     meta: [
-      { title: "Aide et questions fréquentes — Maison" },
+      { title: `Aide et questions fréquentes — ${SITE_NAME}` },
       {
         name: "description",
         content:
-          "Réservation, paiement, annulation, commission : les réponses aux questions les plus fréquentes sur Maison.",
+          "Réservation, paiement, annulation, commission : les réponses aux questions les plus fréquentes sur la plateforme.",
       },
-      { property: "og:title", content: "Aide et questions fréquentes — Maison" },
+      { property: "og:title", content: `Aide et questions fréquentes — ${SITE_NAME}` },
       {
         property: "og:description",
         content: "Réservation, paiement, annulation et commission expliqués simplement.",

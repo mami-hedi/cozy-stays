@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { SITE_NAME, SITE_BASELINE } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { fr } from "date-fns/locale";
@@ -27,13 +28,13 @@ import {
 export const Route = createFileRoute("/mes-annonces")({
   head: () => ({
     meta: [
-      { title: "Mes annonces — Maison" },
+      { title: `Mes annonces — ${SITE_NAME}` },
       {
         name: "description",
         content:
           "Gérez vos logements : prix, statut de publication, calendrier de disponibilité et réservations reçues.",
       },
-      { property: "og:title", content: "Mes annonces — Maison" },
+      { property: "og:title", content: `Mes annonces — ${SITE_NAME}` },
       {
         property: "og:description",
         content: "Calendrier, prix et réservations de vos logements, au même endroit.",

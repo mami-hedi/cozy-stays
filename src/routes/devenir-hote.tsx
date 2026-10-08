@@ -1,3 +1,4 @@
+import { SITE_NAME, SITE_BASELINE } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { COMMISSION_HOTE } from "@/lib/reservations";
@@ -5,16 +6,16 @@ import { COMMISSION_HOTE } from "@/lib/reservations";
 export const Route = createFileRoute("/devenir-hote")({
   head: () => ({
     meta: [
-      { title: "Devenir hôte — Maison" },
+      { title: `Devenir hôte — ${SITE_NAME}` },
       {
         name: "description",
         content:
-          "Publiez votre villa ou votre appartement, gérez votre calendrier et recevez des voyageurs vérifiés. Commission uniquement à la réservation.",
+          "Publiez votre villa ou votre appartement, gérez votre calendrier et recevez des voyageurs. Commission uniquement à la réservation.",
       },
-      { property: "og:title", content: "Devenir hôte — Maison" },
+      { property: "og:title", content: `Devenir hôte — ${SITE_NAME}` },
       {
         property: "og:description",
-        content: "Publiez votre bien en quelques minutes et recevez des voyageurs vérifiés.",
+        content: "Publiez votre bien en quelques minutes et recevez des voyageurs.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -26,7 +27,8 @@ export const Route = createFileRoute("/devenir-hote")({
 const etapes = [
   {
     titre: "Décrivez votre bien",
-    texte: "Titre, adresse, capacité, chambres et équipements. Cinq photos suffisent pour démarrer.",
+    texte:
+      "Titre, adresse, capacité, chambres et équipements. Cinq photos suffisent pour démarrer.",
     couleur: "bg-peach",
   },
   {
@@ -51,9 +53,8 @@ function DevenirHote() {
           Votre bien mérite <span className="text-terra">de belles rencontres</span>
         </h1>
         <p className="mt-5 max-w-lg text-lg text-inksoft">
-          Publiez gratuitement. Nous prélevons une commission de{" "}
-          {Math.round(COMMISSION_HOTE * 100)} % côté hôte, uniquement quand une réservation est
-          confirmée.
+          Publiez gratuitement. Nous prélevons une commission de {Math.round(COMMISSION_HOTE * 100)}{" "}
+          % côté hôte, uniquement quand une réservation est confirmée.
         </p>
 
         <div className="mt-10 grid gap-7 sm:grid-cols-3">
@@ -74,14 +75,15 @@ function DevenirHote() {
           <div className="flex-1">
             <h2 className="text-3xl font-semibold">Prêt à publier votre annonce ?</h2>
             <p className="mt-3 max-w-md text-ink/80">
-              Regardez d'abord comment les voyageurs découvrent les logements sur Maison.
+              Créez votre première annonce depuis votre espace hôte, vous pourrez la modifier à tout
+              moment.
             </p>
           </div>
           <Link
-            to="/recherche"
+            to="/mes-annonces"
             className="rounded-2xl bg-terra clay px-8 py-4 text-lg font-bold text-cream whitespace-nowrap"
           >
-            Voir les annonces
+            Créer mon annonce
           </Link>
         </div>
       </section>

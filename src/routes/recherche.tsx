@@ -1,35 +1,61 @@
 import { useEffect, useMemo, useState } from "react";
+import { SITE_NAME, SITE_BASELINE } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ListingCard } from "@/components/ListingCard";
-import { useStore, annoncesVisibles, enregistrerRecherche } from "@/lib/reservations";
+import {
+  useStore,
+  annoncesVisibles,
+  enregistrerRecherche,
+  chevauche,
+  formatJour,
+} from "@/lib/reservations";
 
 export const Route = createFileRoute("/recherche")({
   head: () => ({
     meta: [
-      { title: "Rechercher un logement — Maison" },
+      { title: `Rechercher un logement — ${SITE_NAME}` },
       {
         name: "description",
         content:
           "Filtrez villas, maisons et appartements par prix, type de bien, chambres et équipements.",
       },
-      { property: "og:title", content: "Rechercher un logement — Maison" },
+      { property: "og:title", content: `Rechercher un logement — ${SITE_NAME}` },
       {
         property: "og:description",
-        content: "Villas, maisons et appartements vérifiés, filtrables en un clic.",
+        content: "Villas, maisons et appartements filtrables en un clic.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): RechercheParams => {
+    const iso = /^\d{4}-\d{2}-\d{2}$/;
+    const out: RechercheParams = {};
+    const { ville, arrivee, depart, voyageurs } = search as Record<string, unknown>;
+    if (typeof ville === "string" && ville.trim()) out.ville = ville.trim().slice(0, 60);
+    if (typeof arrivee === "string" && iso.test(arrivee)) out.arrivee = arrivee;
+    if (typeof depart === "string" && iso.test(depart)) out.depart = depart;
+    const v = Number(voyageurs);
+    if (Number.isInteger(v) && v >= 1 && v <= 20) out.voyageurs = v;
+    return out;
+  },
   component: Recherche,
 });
+
+export type RechercheParams = {
+  ville?: string;
+  arrivee?: string;
+  depart?: string;
+  voyageurs?: number;
+};
 
 const types = ["Tous", "Villa", "Maison", "Appartement", "Studio"] as const;
 const chambresOptions = [1, 2, 3, 4] as const;
 const equipements = ["Piscine", "Wifi", "Climatisation", "Vue mer", "Parking"] as const;
 
 function Recherche() {
+  const { ville, arrivee, depart, voyageurs } = Route.useSearch();
   const store = useStore();
   const listings = annoncesVisibles(store);
   const [type, setType] = useState<(typeof types)[number]>("Tous");
@@ -43,14 +69,30 @@ function Recherche() {
         if (type !== "Tous" && l.type !== type) return false;
         if (l.prixNuit > prixMax) return false;
         if (l.chambres < chambresMin) return false;
+        if (ville && !l.ville.toLowerCase().includes(ville.toLowerCase())) return false;
+        if (voyageurs && l.voyageurs < voyageurs) return false;
+        if (arrivee && depart && arrivee < depart && chevauche(store, l.id, arrivee, depart))
+          return false;
         return equipementsActifs.every((e) =>
           l.equipements.some((eq) => eq.toLowerCase().includes(e.toLowerCase())),
         );
       }),
-    [listings, type, prixMax, chambresMin, equipementsActifs],
+    [
+      listings,
+      type,
+      prixMax,
+      chambresMin,
+      equipementsActifs,
+      ville,
+      voyageurs,
+      arrivee,
+      depart,
+      store,
+    ],
   );
 
-  const filtresModifies = type !== "Tous" || prixMax !== 220 || chambresMin !== 1 || equipementsActifs.length > 0;
+  const filtresModifies =
+    type !== "Tous" || prixMax !== 220 || chambresMin !== 1 || equipementsActifs.length > 0;
   useEffect(() => {
     if (!filtresModifies) return;
     const t = setTimeout(() => {
@@ -69,9 +111,7 @@ function Recherche() {
   }, [filtresModifies, type, prixMax, chambresMin, equipementsActifs]);
 
   function toggleEquipement(e: string) {
-    setEquipementsActifs((prev) =>
-      prev.includes(e) ? prev.filter((x) => x !== e) : [...prev, e],
-    );
+    setEquipementsActifs((prev) => (prev.includes(e) ? prev.filter((x) => x !== e) : [...prev, e]));
   }
 
   return (
@@ -82,7 +122,9 @@ function Recherche() {
         <h1 className="text-4xl font-semibold">Explorer les logements</h1>
         <p className="mt-2 text-lg text-inksoft">
           {resultats.length} logement{resultats.length > 1 ? "s" : ""} disponible
-          {resultats.length > 1 ? "s" : ""} · Tunisie
+          {resultats.length > 1 ? "s" : ""} · {ville ?? "Tunisie"}
+          {voyageurs ? ` · ${voyageurs} voyageur${voyageurs > 1 ? "s" : ""}` : ""}
+          {arrivee && depart ? ` · du ${formatJour(arrivee)} au ${formatJour(depart)}` : ""}
         </p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[260px_1fr]">

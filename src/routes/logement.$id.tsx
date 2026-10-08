@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { SITE_NAME, SITE_BASELINE } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { DateRange } from "react-day-picker";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -28,12 +29,12 @@ export const Route = createFileRoute("/logement/$id")({
   head: ({ loaderData }) => {
     if (!loaderData?.listing) {
       return {
-        meta: [{ title: "Logement — Maison" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: `Logement — ${SITE_NAME}` }, { name: "robots", content: "noindex" }],
       };
     }
     const { listing } = loaderData;
-    const titre = `${listing.titre}, ${listing.ville} — Maison`;
-    const desc = `${listing.type} pour ${listing.voyageurs} voyageurs à ${listing.ville}. ${listing.prixNuit} TND la nuit, confirmation instantanée.`;
+    const titre = `${listing.titre}, ${listing.ville} — ${SITE_NAME}`;
+    const desc = `${listing.type} pour ${listing.voyageurs} voyageurs à ${listing.ville}. ${listing.prixNuit} TND la nuit.`;
     return {
       meta: [
         { title: titre },
@@ -55,6 +56,7 @@ function LogementPage() {
 
   const [plage, setPlage] = useState<DateRange | undefined>();
   const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
+  const [voyageurs, setVoyageurs] = useState(1);
 
   const indispo = useMemo(() => new Set(datesIndisponibles(store, id)), [store, id]);
   const aujourdhui = useMemo(() => {
@@ -97,7 +99,7 @@ function LogementPage() {
       listingId: listing!.id,
       debut,
       fin,
-      voyageurs: listing!.voyageurs,
+      voyageurs: Math.min(Math.max(voyageurs, 1), listing!.voyageurs),
       total: prix.total,
     });
     if (res.ok) {
@@ -139,10 +141,17 @@ function LogementPage() {
                 </p>
               </div>
               <span className="rounded-full bg-butter px-3 py-1.5 text-sm font-bold">
-                ★ {formatNote(reputation.note)} · {reputation.nombre} avis
+                {reputation.nombre > 0
+                  ? `★ ${formatNote(reputation.note)} · ${reputation.nombre} avis`
+                  : "Nouveau · pas encore d'avis"}
               </span>
             </div>
 
+            {listing.exemple && (
+              <p className="mt-6 rounded-2xl bg-butter px-4 py-3 text-sm font-semibold text-ink">
+                Annonce d'exemple : ce logement n'existe pas, il illustre le fonctionnement du site.
+              </p>
+            )}
             <p className="mt-6 text-lg leading-relaxed text-ink/80">{listing.description}</p>
             <p className="mt-3 text-sm font-semibold text-inksoft">Hôte : {listing.hote}</p>
 
@@ -178,7 +187,6 @@ function LogementPage() {
             </div>
           </div>
 
-
           <aside className="h-fit lg:sticky lg:top-8 rounded-[1.75rem] bg-surface clay p-6">
             <p className="text-2xl font-bold">
               {listing.prixNuit}{" "}
@@ -207,33 +215,62 @@ function LogementPage() {
               Les nuits barrées sont déjà réservées ou bloquées par l'hôte.
             </p>
 
+            <label
+              className="mt-4 block text-xs font-bold uppercase tracking-wide text-inksoft"
+              htmlFor="nb-voyageurs"
+            >
+              Voyageurs
+            </label>
+            <select
+              id="nb-voyageurs"
+              value={Math.min(voyageurs, listing.voyageurs)}
+              onChange={(e) => setVoyageurs(Number(e.target.value))}
+              className="mt-1.5 w-full rounded-2xl bg-cream px-4 py-3 text-base font-semibold"
+            >
+              {Array.from({ length: listing.voyageurs }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n} voyageur{n > 1 ? "s" : ""}
+                </option>
+              ))}
+            </select>
+
             {debut && fin && nuits > 0 && (
               <p className="mt-3 text-sm font-bold">
                 {formatJour(debut)} → {formatJour(fin)} · {nuits} nuit{nuits > 1 ? "s" : ""}
               </p>
             )}
 
-            <div className="mt-5 space-y-2.5 border-t border-border pt-5 text-sm">
-              <div className="flex justify-between">
-                <span className="text-inksoft">
-                  {listing.prixNuit} TND × {nuits} nuit{nuits > 1 ? "s" : ""}
-                </span>
-                <span className="font-semibold">{formatTND(prix.sousTotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-inksoft">Frais de ménage</span>
-                <span className="font-semibold">{formatTND(prix.fraisMenage)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-inksoft">Frais de service ({Math.round(COMMISSION_VOYAGEUR * 100)} %)</span>
-                <span className="font-semibold">{formatTND(prix.service)}</span>
-              </div>
-            </div>
+            {nuits > 0 ? (
+              <>
+                <div className="mt-5 space-y-2.5 border-t border-border pt-5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-inksoft">
+                      {listing.prixNuit} TND × {nuits} nuit{nuits > 1 ? "s" : ""}
+                    </span>
+                    <span className="font-semibold">{formatTND(prix.sousTotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-inksoft">Frais de ménage</span>
+                    <span className="font-semibold">{formatTND(prix.fraisMenage)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-inksoft">
+                      Frais de service ({Math.round(COMMISSION_VOYAGEUR * 100)} %)
+                    </span>
+                    <span className="font-semibold">{formatTND(prix.service)}</span>
+                  </div>
+                </div>
 
-            <div className="mt-5 flex justify-between border-t border-border pt-5">
-              <span className="text-lg font-bold">Total</span>
-              <span className="text-lg font-bold">{formatTND(prix.total)}</span>
-            </div>
+                <div className="mt-5 flex justify-between border-t border-border pt-5">
+                  <span className="text-lg font-bold">Total</span>
+                  <span className="text-lg font-bold">{formatTND(prix.total)}</span>
+                </div>
+              </>
+            ) : (
+              <p className="mt-5 border-t border-border pt-5 text-sm font-semibold text-inksoft">
+                Choisissez vos dates pour voir le prix total.
+              </p>
+            )}
 
             <button
               type="button"
@@ -244,7 +281,7 @@ function LogementPage() {
               {statut === "publiee" ? "Réserver" : "Annonce indisponible"}
             </button>
             <p className="mt-3 text-center text-xs font-semibold text-inksoft">
-              Confirmation instantanée · démonstration, aucun paiement réel
+              Démonstration : aucune réservation réelle, aucun paiement
             </p>
             {message && (
               <p

@@ -58,7 +58,9 @@ export function AvisVoyageur({ listing }: { listing: Listing }) {
       commentaire: texte,
     });
     setRetour(
-      res.ok ? { ok: true, texte: "Merci, votre avis est publié." } : { ok: false, texte: res.erreur },
+      res.ok
+        ? { ok: true, texte: "Merci, votre avis est publié." }
+        : { ok: false, texte: res.erreur },
     );
     if (res.ok) setTexte("");
   }
@@ -66,15 +68,21 @@ export function AvisVoyageur({ listing }: { listing: Listing }) {
   return (
     <div className="rounded-[1.75rem] bg-surface clay p-6">
       <h2 className="text-xl font-semibold">
-        Avis · ★ {formatNote(note)}{" "}
-        <span className="text-base font-semibold text-inksoft">({nombre})</span>
+        {nombre > 0 ? (
+          <>
+            Avis · ★ {formatNote(note)}{" "}
+            <span className="text-base font-semibold text-inksoft">({nombre})</span>
+          </>
+        ) : (
+          "Avis"
+        )}
       </h2>
 
       {aNoter.length > 0 ? (
         <div className="mt-4 rounded-2xl bg-cream p-4">
           <p className="text-sm font-bold">
-            Vous avez séjourné ici du {formatJour(aNoter[0]!.debut)} au {formatJour(aNoter[0]!.fin)}.
-            Notez votre séjour :
+            Vous avez séjourné ici du {formatJour(aNoter[0]!.debut)} au {formatJour(aNoter[0]!.fin)}
+            . Notez votre séjour :
           </p>
           <div className="mt-2 flex gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
@@ -143,10 +151,12 @@ export function ReputationHote({ listing }: { listing: Listing }) {
       <h3 className="text-xl font-semibold">Réputation</h3>
       <div className="mt-3 flex flex-wrap items-center gap-4">
         <span className="rounded-2xl bg-butter px-4 py-3 text-2xl font-bold">
-          ★ {formatNote(note)}
+          {nombre > 0 ? `★ ${formatNote(note)}` : "Nouveau"}
         </span>
         <span className="text-sm font-semibold text-inksoft">
-          {nombre} avis au total · {locaux.length} depuis cet espace
+          {nombre > 0
+            ? `${nombre} avis au total · ${locaux.length} depuis cet espace`
+            : "Pas encore d'avis"}
         </span>
       </div>
 
@@ -159,7 +169,10 @@ export function ReputationHote({ listing }: { listing: Listing }) {
               <div key={n} className="flex items-center gap-3 text-xs font-bold text-inksoft">
                 <span className="w-8">{n} ★</span>
                 <span className="h-2 flex-1 overflow-hidden rounded-full bg-cream">
-                  <span className="block h-full rounded-full bg-terra" style={{ width: `${pct}%` }} />
+                  <span
+                    className="block h-full rounded-full bg-terra"
+                    style={{ width: `${pct}%` }}
+                  />
                 </span>
                 <span className="w-8 text-right">{part}</span>
               </div>

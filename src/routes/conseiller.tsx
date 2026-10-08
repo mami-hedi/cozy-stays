@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SITE_NAME, SITE_BASELINE } from "@/lib/site";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -15,13 +16,17 @@ import { obtenirRecommandations } from "@/lib/recommandations.functions";
 export const Route = createFileRoute("/conseiller")({
   head: () => ({
     meta: [
-      { title: "Conseiller IA — Trouvez le logement idéal | Maison" },
+      { title: `Conseiller IA — Trouvez le logement idéal | ${SITE_NAME}` },
       {
         name: "description",
-        content: "Décrivez votre séjour idéal et recevez des recommandations de logements personnalisées.",
+        content:
+          "Décrivez votre séjour idéal et recevez des recommandations de logements personnalisées.",
       },
-      { property: "og:title", content: "Conseiller IA — Maison" },
-      { property: "og:description", content: "Des recommandations de logements adaptées à vos envies." },
+      { property: "og:title", content: `Conseiller IA — ${SITE_NAME}` },
+      {
+        property: "og:description",
+        content: "Des recommandations de logements adaptées à vos envies.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -67,7 +72,9 @@ function Conseiller() {
         `Budget max par nuit : ${budget} TND`,
         choix.length ? `Envies : ${choix.join(", ")}` : "",
         details.trim() ? `Détails : ${details.trim()}` : "",
-        historique ? `\nHistorique du voyageur (à utiliser comme contexte secondaire) :\n${historique}` : "",
+        historique
+          ? `\nHistorique du voyageur (à utiliser comme contexte secondaire) :\n${historique}`
+          : "",
       ]
         .filter(Boolean)
         .join("\n"),
@@ -122,9 +129,12 @@ function Conseiller() {
         <span className="inline-block rounded-full bg-lilac px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-ink">
           ✨ Conseiller IA
         </span>
-        <h1 className="mt-4 text-4xl md:text-5xl font-semibold">Votre séjour idéal, en quelques mots</h1>
+        <h1 className="mt-4 text-4xl md:text-5xl font-semibold">
+          Votre séjour idéal, en quelques mots
+        </h1>
         <p className="mt-3 max-w-xl text-lg text-inksoft">
-          Indiquez vos préférences, notre assistant sélectionne les logements qui vous correspondent.
+          Indiquez vos préférences, notre assistant sélectionne les logements qui vous
+          correspondent.
         </p>
 
         <div className="mt-8 rounded-[2rem] bg-sage clay p-6">
@@ -168,7 +178,10 @@ function Conseiller() {
           )}
         </div>
 
-        <form onSubmit={lancer} className="mt-8 grid gap-6 rounded-[2rem] bg-surface clay p-6 md:grid-cols-2">
+        <form
+          onSubmit={lancer}
+          className="mt-8 grid gap-6 rounded-[2rem] bg-surface clay p-6 md:grid-cols-2"
+        >
           <div>
             <label htmlFor="voy" className="text-xs font-bold uppercase tracking-wide text-inksoft">
               Voyageurs
@@ -245,7 +258,9 @@ function Conseiller() {
 
         <div aria-live="polite" className="mt-10">
           {erreur && (
-            <div className="rounded-[1.75rem] bg-surface clay p-6 font-semibold text-terra">{erreur}</div>
+            <div className="rounded-[1.75rem] bg-surface clay p-6 font-semibold text-terra">
+              {erreur}
+            </div>
           )}
           {resultats && resultats.length === 0 && (
             <div className="rounded-[1.75rem] bg-surface clay p-6">

@@ -16,8 +16,11 @@ export type Listing = {
   sdb: number;
   prixNuit: number;
   fraisMenage: number;
+  /** Note moyenne issue d'avis réels (0 tant qu'il n'y en a pas). */
   note: number;
   avis: number;
+  /** Annonce de démonstration, ne correspond pas à un vrai logement. */
+  exemple?: boolean;
   image: string;
   hote: string;
   description: string;
@@ -25,6 +28,7 @@ export type Listing = {
   regles: string[];
 };
 
+/** Frais de service facturés au voyageur (part du sous-total + ménage). Paramétrable ici. */
 export const COMMISSION_VOYAGEUR = 0.02;
 
 export const listings: Listing[] = [
@@ -39,8 +43,9 @@ export const listings: Listing[] = [
     sdb: 2,
     prixNuit: 120,
     fraisMenage: 40,
-    note: 4.9,
-    avis: 87,
+    note: 0,
+    avis: 0,
+    exemple: true,
     image: villaOceane,
     hote: "Leïla",
     description:
@@ -59,8 +64,9 @@ export const listings: Listing[] = [
     sdb: 1,
     prixNuit: 65,
     fraisMenage: 25,
-    note: 4.7,
-    avis: 54,
+    note: 0,
+    avis: 0,
+    exemple: true,
     image: appartJardin,
     hote: "Karim",
     description:
@@ -79,8 +85,9 @@ export const listings: Listing[] = [
     sdb: 2,
     prixNuit: 180,
     fraisMenage: 55,
-    note: 5,
-    avis: 31,
+    note: 0,
+    avis: 0,
+    exemple: true,
     image: loftPanorama,
     hote: "Sonia",
     description:
@@ -99,8 +106,9 @@ export const listings: Listing[] = [
     sdb: 2,
     prixNuit: 140,
     fraisMenage: 45,
-    note: 4.8,
-    avis: 62,
+    note: 0,
+    avis: 0,
+    exemple: true,
     image: maisonBleue,
     hote: "Nadia",
     description:
@@ -119,8 +127,9 @@ export const listings: Listing[] = [
     sdb: 3,
     prixNuit: 210,
     fraisMenage: 70,
-    note: 4.9,
-    avis: 44,
+    note: 0,
+    avis: 0,
+    exemple: true,
     image: darPatio,
     hote: "Youssef",
     description:
@@ -139,8 +148,9 @@ export const listings: Listing[] = [
     sdb: 1,
     prixNuit: 55,
     fraisMenage: 20,
-    note: 4.6,
-    avis: 96,
+    note: 0,
+    avis: 0,
+    exemple: true,
     image: studioMedina,
     hote: "Amine",
     description:
@@ -155,6 +165,10 @@ export function getListing(id: string) {
 }
 
 export function prixSejour(listing: Listing, nuits: number) {
+  // Sans nuit sélectionnée, rien n'est facturé (ni ménage, ni frais de service).
+  if (nuits < 1) {
+    return { nuits: 0, sousTotal: 0, fraisMenage: 0, service: 0, total: 0 };
+  }
   const sousTotal = listing.prixNuit * nuits;
   const service = Math.round((sousTotal + listing.fraisMenage) * COMMISSION_VOYAGEUR);
   return {

@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { SITE_NAME, SITE_BASELINE } from "@/lib/site";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ACCES_DEMO } from "@/lib/access";
 import { formatTND, COMMISSION_VOYAGEUR } from "@/lib/listings";
 import {
   useStore,
@@ -21,13 +23,16 @@ import {
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Back-office admin — Maison" },
+      { title: `Back-office admin — ${SITE_NAME}` },
       {
         name: "description",
-        content: "Modération des annonces, litiges, commissions et statistiques de la plateforme Maison.",
+        content: "Modération des annonces, litiges, commissions et statistiques de la plateforme.",
       },
-      { property: "og:title", content: "Back-office admin — Maison" },
-      { property: "og:description", content: "Pilotez la plateforme : annonces, litiges, commissions." },
+      { property: "og:title", content: `Back-office admin — ${SITE_NAME}` },
+      {
+        property: "og:description",
+        content: "Pilotez la plateforme : annonces, litiges, commissions.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -62,9 +67,34 @@ const litLabels: Record<LitigeStatut, string> = {
 };
 
 const carte = "rounded-[1.75rem] bg-surface clay p-6";
+
+/** Tant que l'authentification n'existe pas, l'espace admin n'est pas public. */
+function Admin() {
+  if (!ACCES_DEMO) {
+    return (
+      <div className="min-h-screen">
+        <SiteHeader />
+        <div className="mx-auto max-w-xl px-6 py-24 text-center">
+          <h1 className="text-3xl font-semibold">Accès réservé</h1>
+          <p className="mt-3 text-inksoft">
+            Cet espace est réservé à l'équipe de la plateforme. Connectez-vous avec un compte
+            administrateur pour y accéder.
+          </p>
+          <Link
+            to="/"
+            className="mt-6 inline-block rounded-2xl bg-terra clay px-6 py-3 font-bold text-cream"
+          >
+            Retour à l'accueil
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  return <AdminContenu />;
+}
 const chip = "rounded-2xl px-3.5 py-2 text-sm font-semibold";
 
-function Admin() {
+function AdminContenu() {
   const [onglet, setOnglet] = useState<Onglet>("stats");
   return (
     <div className="min-h-screen">
@@ -74,7 +104,9 @@ function Admin() {
           Back-office
         </span>
         <h1 className="mt-4 text-4xl font-semibold">Administration</h1>
-        <p className="mt-2 text-inksoft">Mode démonstration : données stockées dans ce navigateur.</p>
+        <p className="mt-2 text-inksoft">
+          Mode démonstration : données stockées dans ce navigateur.
+        </p>
         <div role="tablist" aria-label="Sections admin" className="mt-8 flex flex-wrap gap-2">
           {onglets.map((o) => (
             <button
@@ -116,7 +148,10 @@ function Barres({ data }: { data: { label: string; valeur: number }[] }) {
         <div key={d.label} className="flex items-center gap-3 text-sm">
           <span className="w-32 shrink-0 truncate">{d.label}</span>
           <div className="h-3 flex-1 rounded-full bg-cream">
-            <div className="h-3 rounded-full bg-terra" style={{ width: `${(d.valeur / max) * 100}%` }} />
+            <div
+              className="h-3 rounded-full bg-terra"
+              style={{ width: `${(d.valeur / max) * 100}%` }}
+            />
           </div>
           <span className="w-8 text-right font-bold">{d.valeur}</span>
         </div>
@@ -157,13 +192,20 @@ function Stats() {
         <Kpi label="Messages" valeur={s.messages.length} />
         <Kpi label="Non lus" valeur={nonLus} />
         <Kpi label="Annonces" valeur={annonces.length} />
-        <Kpi label="Litiges ouverts" valeur={s.litiges.filter((l) => l.statut === "ouvert" || l.statut === "en_cours").length} />
+        <Kpi
+          label="Litiges ouverts"
+          valeur={s.litiges.filter((l) => l.statut === "ouvert" || l.statut === "en_cours").length}
+        />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <div className={carte}>
           <h2 className="text-xl font-semibold">Réservations par mois d'arrivée</h2>
           <div className="mt-4">
-            {parMois.length ? <Barres data={parMois} /> : <p className="text-inksoft">Aucune réservation.</p>}
+            {parMois.length ? (
+              <Barres data={parMois} />
+            ) : (
+              <p className="text-inksoft">Aucune réservation.</p>
+            )}
           </div>
         </div>
         <div className={carte}>
@@ -194,7 +236,9 @@ function Stats() {
 function ModerationPanel() {
   const s = useStore();
   const [filtre, setFiltre] = useState<Moderation | "toutes">("toutes");
-  const annonces = toutesAnnonces(s).filter((l) => filtre === "toutes" || moderationDe(s, l.id) === filtre);
+  const annonces = toutesAnnonces(s).filter(
+    (l) => filtre === "toutes" || moderationDe(s, l.id) === filtre,
+  );
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
@@ -216,29 +260,45 @@ function ModerationPanel() {
           <div key={l.id} className={`${carte} flex flex-col gap-4 md:flex-row md:items-center`}>
             <img src={l.image} alt="" className="h-20 w-28 rounded-2xl object-cover" />
             <div className="flex-1">
-              <Link to="/logement/$id" params={{ id: l.id }} className="text-lg font-bold hover:underline">
+              <Link
+                to="/logement/$id"
+                params={{ id: l.id }}
+                className="text-lg font-bold hover:underline"
+              >
                 {l.titre}
               </Link>
               <p className="text-sm text-inksoft">
-                {l.ville} · hôte {l.hote} · {l.prixNuit} TND/nuit · statut hôte : {statutDe(s, l.id)}
+                {l.ville} · hôte {l.hote} · {l.prixNuit} TND/nuit · statut hôte :{" "}
+                {statutDe(s, l.id)}
               </p>
-              <span className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-bold ${modClass[m]}`}>
+              <span
+                className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-bold ${modClass[m]}`}
+              >
                 {modLabels[m]}
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
               {m !== "approuvee" && (
-                <button onClick={() => definirModeration(l.id, "approuvee")} className={`${chip} bg-sage text-ink`}>
+                <button
+                  onClick={() => definirModeration(l.id, "approuvee")}
+                  className={`${chip} bg-sage text-ink`}
+                >
                   Approuver
                 </button>
               )}
               {m !== "signalee" && (
-                <button onClick={() => definirModeration(l.id, "signalee")} className={`${chip} bg-butter text-ink`}>
+                <button
+                  onClick={() => definirModeration(l.id, "signalee")}
+                  className={`${chip} bg-butter text-ink`}
+                >
                   Signaler
                 </button>
               )}
               {m !== "suspendue" && (
-                <button onClick={() => definirModeration(l.id, "suspendue")} className={`${chip} bg-terra text-cream`}>
+                <button
+                  onClick={() => definirModeration(l.id, "suspendue")}
+                  className={`${chip} bg-terra text-cream`}
+                >
                   Suspendre
                 </button>
               )}
@@ -246,7 +306,9 @@ function ModerationPanel() {
           </div>
         );
       })}
-      <p className="text-sm text-inksoft">Une annonce suspendue disparaît de la recherche et de l'accueil.</p>
+      <p className="text-sm text-inksoft">
+        Une annonce suspendue disparaît de la recherche et de l'accueil.
+      </p>
     </div>
   );
 }
@@ -281,7 +343,8 @@ function Litiges() {
             <option value="">— Choisir —</option>
             {s.reservations.map((r) => (
               <option key={r.id} value={r.id}>
-                {trouverAnnonce(s, r.listingId)?.titre ?? r.listingId} · {formatJour(r.debut)} → {formatJour(r.fin)}
+                {trouverAnnonce(s, r.listingId)?.titre ?? r.listingId} · {formatJour(r.debut)} →{" "}
+                {formatJour(r.fin)}
               </option>
             ))}
           </select>
@@ -326,7 +389,9 @@ function Litiges() {
           >
             Ouvrir le litige
           </button>
-          {!s.reservations.length && <p className="mt-2 text-sm text-inksoft">Aucune réservation existante.</p>}
+          {!s.reservations.length && (
+            <p className="mt-2 text-sm text-inksoft">Aucune réservation existante.</p>
+          )}
         </div>
       </form>
 
@@ -350,13 +415,16 @@ function LitigeCarte({ id }: { id: string }) {
         <div>
           <p className="text-lg font-bold">{l.motif}</p>
           <p className="text-sm text-inksoft">
-            {trouverAnnonce(s, l.listingId)?.titre ?? l.listingId} · par {l.demandeur === "hote" ? "l'hôte" : "le voyageur"} ·{" "}
+            {trouverAnnonce(s, l.listingId)?.titre ?? l.listingId} · par{" "}
+            {l.demandeur === "hote" ? "l'hôte" : "le voyageur"} ·{" "}
             {new Date(l.cree).toLocaleDateString("fr-FR")}
             {r ? ` · payé ${formatTND(r.total)}` : ""}
           </p>
           {l.description && <p className="mt-2">{l.description}</p>}
         </div>
-        <span className="rounded-full bg-butter px-3 py-1 text-xs font-bold">{litLabels[l.statut]}</span>
+        <span className="rounded-full bg-butter px-3 py-1 text-xs font-bold">
+          {litLabels[l.statut]}
+        </span>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-[1fr_160px]">
         <textarea
@@ -403,7 +471,11 @@ function LitigeCarte({ id }: { id: string }) {
 function Commissions() {
   const s = useStore();
   const lignes = s.reservations
-    .map((r) => ({ r, c: commissionDe(r), titre: trouverAnnonce(s, r.listingId)?.titre ?? r.listingId }))
+    .map((r) => ({
+      r,
+      c: commissionDe(r),
+      titre: trouverAnnonce(s, r.listingId)?.titre ?? r.listingId,
+    }))
     .sort((a, b) => b.r.cree.localeCompare(a.r.cree));
   const tot = lignes.reduce(
     (a, { r, c }) => ({
@@ -414,16 +486,28 @@ function Commissions() {
     }),
     { total: 0, voyageur: 0, hote: 0, versement: 0 },
   );
-  const rembourse = s.litiges.filter((l) => l.statut === "resolu").reduce((a, l) => a + l.remboursement, 0);
+  const rembourse = s.litiges
+    .filter((l) => l.statut === "resolu")
+    .reduce((a, l) => a + l.remboursement, 0);
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi label="Encaissé" valeur={formatTND(Math.round(tot.total))} />
-        <Kpi label={`Commission voyageurs (${Math.round(COMMISSION_VOYAGEUR * 100)} %)`} valeur={formatTND(tot.voyageur)} />
-        <Kpi label={`Commission hôtes (${Math.round(COMMISSION_HOTE * 100)} %)`} valeur={formatTND(tot.hote)} />
+        <Kpi
+          label={`Commission voyageurs (${Math.round(COMMISSION_VOYAGEUR * 100)} %)`}
+          valeur={formatTND(tot.voyageur)}
+        />
+        <Kpi
+          label={`Commission hôtes (${Math.round(COMMISSION_HOTE * 100)} %)`}
+          valeur={formatTND(tot.hote)}
+        />
         <Kpi label="Reversé aux hôtes" valeur={formatTND(tot.versement)} />
       </div>
-      {rembourse > 0 && <p className="text-sm text-inksoft">Remboursements accordés via litiges : {formatTND(rembourse)}</p>}
+      {rembourse > 0 && (
+        <p className="text-sm text-inksoft">
+          Remboursements accordés via litiges : {formatTND(rembourse)}
+        </p>
+      )}
       <div className={`${carte} overflow-x-auto`}>
         {lignes.length === 0 ? (
           <p className="text-inksoft">Aucune réservation pour le moment.</p>

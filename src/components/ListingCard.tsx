@@ -1,7 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import type { Listing } from "@/lib/listings";
+import { useStore, reputationDe, formatNote } from "@/lib/reservations";
 
 export function ListingCard({ listing }: { listing: Listing }) {
+  const store = useStore();
+  const { note, nombre } = reputationDe(store, listing);
   return (
     <Link
       to="/logement/$id"
@@ -25,9 +28,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
             </p>
           </div>
           <span className="rounded-full bg-butter px-2.5 py-1 text-xs font-bold whitespace-nowrap">
-            ★ {listing.note.toFixed(1).replace(".", ",")}
+            {nombre > 0 ? `★ ${formatNote(note)}` : "Nouveau"}
           </span>
         </div>
+        {listing.exemple && (
+          <p className="mt-2 text-xs font-semibold text-inksoft">Annonce d'exemple</p>
+        )}
         <p className="mt-3 text-base font-bold">
           {listing.prixNuit} <span className="text-sm font-semibold text-inksoft">TND/nuit</span>
         </p>

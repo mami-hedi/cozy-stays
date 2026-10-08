@@ -12,8 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AideRouteImport } from './routes/aide'
+import { Route as AnnulationRouteImport } from './routes/annulation'
+import { Route as CguRouteImport } from './routes/cgu'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConseillerRouteImport } from './routes/conseiller'
 import { Route as DevenirHoteRouteImport } from './routes/devenir-hote'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as MesAnnoncesRouteImport } from './routes/mes-annonces'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as LogementIdRouteImport } from './routes/logement.$id'
@@ -33,6 +37,21 @@ const AideRoute = AideRouteImport.update({
   path: '/aide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnulationRoute = AnnulationRouteImport.update({
+  id: '/annulation',
+  path: '/annulation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CguRoute = CguRouteImport.update({
+  id: '/cgu',
+  path: '/cgu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConseillerRoute = ConseillerRouteImport.update({
   id: '/conseiller',
   path: '/conseiller',
@@ -41,6 +60,11 @@ const ConseillerRoute = ConseillerRouteImport.update({
 const DevenirHoteRoute = DevenirHoteRouteImport.update({
   id: '/devenir-hote',
   path: '/devenir-hote',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MesAnnoncesRoute = MesAnnoncesRouteImport.update({
@@ -63,8 +87,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/aide': typeof AideRoute
+  '/annulation': typeof AnnulationRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/conseiller': typeof ConseillerRoute
   '/devenir-hote': typeof DevenirHoteRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
   '/logement/$id': typeof LogementIdRoute
@@ -73,8 +101,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/aide': typeof AideRoute
+  '/annulation': typeof AnnulationRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/conseiller': typeof ConseillerRoute
   '/devenir-hote': typeof DevenirHoteRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
   '/logement/$id': typeof LogementIdRoute
@@ -84,8 +116,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/aide': typeof AideRoute
+  '/annulation': typeof AnnulationRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/conseiller': typeof ConseillerRoute
   '/devenir-hote': typeof DevenirHoteRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/mes-annonces': typeof MesAnnoncesRoute
   '/recherche': typeof RechercheRoute
   '/logement/$id': typeof LogementIdRoute
@@ -96,8 +132,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/aide'
+    | '/annulation'
+    | '/cgu'
+    | '/confidentialite'
     | '/conseiller'
     | '/devenir-hote'
+    | '/mentions-legales'
     | '/mes-annonces'
     | '/recherche'
     | '/logement/$id'
@@ -106,8 +146,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/aide'
+    | '/annulation'
+    | '/cgu'
+    | '/confidentialite'
     | '/conseiller'
     | '/devenir-hote'
+    | '/mentions-legales'
     | '/mes-annonces'
     | '/recherche'
     | '/logement/$id'
@@ -116,8 +160,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/aide'
+    | '/annulation'
+    | '/cgu'
+    | '/confidentialite'
     | '/conseiller'
     | '/devenir-hote'
+    | '/mentions-legales'
     | '/mes-annonces'
     | '/recherche'
     | '/logement/$id'
@@ -127,8 +175,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AideRoute: typeof AideRoute
+  AnnulationRoute: typeof AnnulationRoute
+  CguRoute: typeof CguRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   ConseillerRoute: typeof ConseillerRoute
   DevenirHoteRoute: typeof DevenirHoteRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
   MesAnnoncesRoute: typeof MesAnnoncesRoute
   RechercheRoute: typeof RechercheRoute
   LogementIdRoute: typeof LogementIdRoute
@@ -157,6 +209,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annulation': {
+      id: '/annulation'
+      path: '/annulation'
+      fullPath: '/annulation'
+      preLoaderRoute: typeof AnnulationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgu': {
+      id: '/cgu'
+      path: '/cgu'
+      fullPath: '/cgu'
+      preLoaderRoute: typeof CguRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/conseiller': {
       id: '/conseiller'
       path: '/conseiller'
@@ -169,6 +242,13 @@ declare module '@tanstack/react-router' {
       path: '/devenir-hote'
       fullPath: '/devenir-hote'
       preLoaderRoute: typeof DevenirHoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mes-annonces': {
@@ -199,8 +279,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AideRoute: AideRoute,
+  AnnulationRoute: AnnulationRoute,
+  CguRoute: CguRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   ConseillerRoute: ConseillerRoute,
   DevenirHoteRoute: DevenirHoteRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
   MesAnnoncesRoute: MesAnnoncesRoute,
   RechercheRoute: RechercheRoute,
   LogementIdRoute: LogementIdRoute,

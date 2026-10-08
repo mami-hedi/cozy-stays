@@ -1,13 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { SITE_NAME } from "@/lib/site";
+import { ACCES_DEMO } from "@/lib/access";
+import { useStore } from "@/lib/reservations";
 
-const links = [
+const liensPublics = [
   { to: "/recherche", label: "Explorer" },
   { to: "/conseiller", label: "Conseiller IA" },
   { to: "/devenir-hote", label: "Devenir hôte" },
-  { to: "/mes-annonces", label: "Mes annonces" },
   { to: "/aide", label: "Aide" },
-  { to: "/admin", label: "Admin" },
 ] as const;
 
 const navClass =
@@ -16,7 +17,12 @@ const navActiveClass = "px-4 py-2 rounded-full bg-terra text-cream text-sm font-
 
 function NavLink({ to, label, onClick }: { to: string; label: string; onClick?: () => void }) {
   return (
-    <Link to={to} className={navClass} activeProps={{ className: navActiveClass }} onClick={onClick}>
+    <Link
+      to={to}
+      className={navClass}
+      activeProps={{ className: navActiveClass }}
+      onClick={onClick}
+    >
       {label}
     </Link>
   );
@@ -24,15 +30,28 @@ function NavLink({ to, label, onClick }: { to: string; label: string; onClick?: 
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const store = useStore();
+  // « Mes annonces » n'apparaît qu'une fois une annonce créée ; « Admin » seulement en accès démo.
+  const aDesAnnonces = store.annoncesPerso.length > 0;
+  const links = [
+    ...liensPublics.slice(0, 3),
+    ...(aDesAnnonces || ACCES_DEMO
+      ? ([{ to: "/mes-annonces", label: "Mes annonces" }] as const)
+      : []),
+    liensPublics[3],
+    ...(ACCES_DEMO ? ([{ to: "/admin", label: "Admin" }] as const) : []),
+  ];
 
   return (
     <header className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 sm:pt-6">
       <nav className="flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="size-11 rounded-2xl bg-terra clay grid place-items-center">
-            <span className="font-display text-lg font-bold text-cream">m</span>
+            <span className="font-display text-lg font-bold text-cream">
+              {SITE_NAME.charAt(0).toLowerCase()}
+            </span>
           </div>
-          <span className="font-display text-2xl font-semibold">Maison</span>
+          <span className="font-display text-2xl font-semibold">{SITE_NAME}</span>
         </Link>
 
         <div className="hidden lg:flex items-center gap-1 rounded-full bg-surface/70 clay-sm p-1.5">
@@ -42,15 +61,6 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            className="hidden sm:block rounded-2xl bg-surface clay-sm px-5 py-2.5 text-sm font-bold transition-transform hover:-translate-y-0.5"
-          >
-            Se connecter
-          </button>
-          <div className="size-11 rounded-2xl bg-powder clay-sm grid place-items-center font-bold text-ink">
-            S
-          </div>
           <button
             type="button"
             aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
@@ -68,13 +78,6 @@ export function SiteHeader() {
           {links.map((l) => (
             <NavLink key={l.to} to={l.to} label={l.label} onClick={() => setOpen(false)} />
           ))}
-          <button
-            type="button"
-            className="mt-1 rounded-2xl bg-terra text-cream px-4 py-2.5 text-sm font-bold sm:hidden"
-            onClick={() => setOpen(false)}
-          >
-            Se connecter
-          </button>
         </div>
       )}
     </header>
